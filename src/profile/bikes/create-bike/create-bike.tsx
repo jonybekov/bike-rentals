@@ -1,9 +1,10 @@
+import { Title } from "@mantine/core";
 import { showNotification } from "@mantine/notifications";
-import { addDoc, collection, doc } from "firebase/firestore";
+import { addDoc, collection } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
-import { Collection } from "../../app/services/collections";
-import { db } from "../../app/services/firebase";
-import { IBikeForm } from "../../shared/types/bike";
+import { Collection } from "../../../app/services/collections";
+import { db } from "../../../app/services/firebase";
+import { IBikeForm } from "../../../shared/types/bike";
 import { BikeForm } from "../bike-form";
 
 export function CreateBike() {
@@ -20,5 +21,12 @@ export function CreateBike() {
     navigate("/profile/bikes");
   };
 
-  return <BikeForm onSubmit={handleCreateBike} />;
+  return (
+    <>
+      <Title mb="lg" order={2}>
+        Add bike
+      </Title>
+      <BikeForm onSubmit={handleCreateBike} />
+    </>
+  );
 }

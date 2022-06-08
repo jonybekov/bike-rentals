@@ -6,10 +6,8 @@ import {
   Text,
   Switch,
   Table,
-  Title,
-  Loader,
-  Center,
   Box,
+  Title,
 } from "@mantine/core";
 import {
   collection,
@@ -27,9 +25,8 @@ import { IBike } from "../../shared/types/bike";
 import { Collection } from "../../app/services/collections";
 import { showNotification } from "@mantine/notifications";
 
-export const Bikes = () => {
+export const Users = () => {
   const [bikes, setBikes] = useState<IBike[]>([]);
-  const [loading, setLoading] = useState<boolean>(false);
   const modals = useModals();
 
   const toggleAvailability = async (bikeId: string, value: boolean) => {
@@ -58,7 +55,6 @@ export const Bikes = () => {
     });
 
   useEffect(() => {
-    setLoading(true);
     const unsubscribe = onSnapshot(collection(db, "bikes"), (querySnapshot) => {
       const bikes = querySnapshot.docs.map(
         (doc) =>
@@ -69,7 +65,6 @@ export const Bikes = () => {
       );
 
       setBikes(bikes);
-      setLoading(false);
     });
 
     return () => unsubscribe();
@@ -108,10 +103,10 @@ export const Bikes = () => {
   return (
     <>
       <Box sx={() => ({ display: "flex", justifyContent: "space-between" })}>
-        <Title order={2}>Bikes</Title>
+        <Title order={2}>Users</Title>
 
         <Link to="add">
-          <Button>Add Bike</Button>
+          <Button>Add User</Button>
         </Link>
       </Box>
       <Table mt="lg">
@@ -124,17 +119,7 @@ export const Bikes = () => {
             <th>Actions</th>
           </tr>
         </thead>
-        {loading ? (
-          <tbody>
-            <tr>
-              <Center style={{ width: "100%" }}>
-                <Loader />
-              </Center>
-            </tr>
-          </tbody>
-        ) : (
-          <tbody>{rows}</tbody>
-        )}
+        <tbody>{rows}</tbody>
       </Table>
     </>
   );

@@ -6,8 +6,8 @@ export interface IBike {
   id: string;
   model: SimpleField;
   image?: string;
-  location: Color;
-  color: SimpleField;
+  location: SimpleField;
+  color: Color;
   available?: boolean;
 }
 
