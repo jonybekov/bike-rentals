@@ -1,9 +1,8 @@
 import { Loader, Title } from "@mantine/core";
-import { useForceUpdate } from "@mantine/hooks";
 import { showNotification } from "@mantine/notifications";
-import { addDoc, collection, doc, getDoc, updateDoc } from "firebase/firestore";
+import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { Collection } from "../../../app/services/collections";
 import { db } from "../../../app/services/firebase";
 import { IBikeForm } from "../../../shared/types/bike";
@@ -13,6 +12,7 @@ export function EditBike() {
   const { bikeId = "" } = useParams();
   const [bike, setBike] = useState<IBikeForm>();
   const [loading, setLoading] = useState<boolean>(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const getBike = async () => {
@@ -36,7 +36,8 @@ export function EditBike() {
       location: data.location,
     });
 
-    alert("Bike edited!");
+    showNotification({ message: "Bike edited!" });
+    navigate("/profile/bikes");
   };
 
   if (loading) return <Loader />;

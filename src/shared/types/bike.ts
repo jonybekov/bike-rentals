@@ -1,4 +1,5 @@
 import { SimpleField } from "./common";
+import { Period } from "./reservation";
 
 export type Color = { hex_code: string } & SimpleField;
 
@@ -16,4 +17,9 @@ export interface IBikeForm {
   image?: string;
   location: Color;
   color: SimpleField;
+}
+
+export interface IBikeFilter extends IBikeForm {
+  period: Period<Date>;
+  rating: number;
 }

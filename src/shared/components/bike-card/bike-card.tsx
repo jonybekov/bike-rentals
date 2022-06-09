@@ -11,7 +11,7 @@ import {
 } from "@mantine/core";
 import { GasStation, Gauge, ManualGearbox, Users } from "tabler-icons-react";
 import { useStyles } from "./styles";
-import { IBike } from "../../shared/types/bike";
+import { IBike } from "../../types/bike";
 
 const mockdata = [
   { label: "4 passengers", icon: Users },

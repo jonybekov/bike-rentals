@@ -7,25 +7,23 @@ import {
   Paper,
   Transition,
   Text,
-  createStyles,
   Avatar,
   UnstyledButton,
   Menu,
-  Divider,
-  Tabs,
   Button,
+  Title,
 } from "@mantine/core";
 import { useBooleanToggle } from "@mantine/hooks";
 import { useStyles } from "./styles";
 import { HEADER_HEIGHT } from "./consts";
 import { ChevronDown, Logout } from "tabler-icons-react";
 import { useAuthState } from "react-firebase-hooks/auth";
-import { auth, logout } from "../../app/services/firebase";
+import { auth, logout } from "../../../app/services/firebase";
 import { Link } from "react-router-dom";
 import ContentLoader, { IContentLoaderProps } from "react-content-loader";
 
 interface NavbarProps {
-  links: { link: string; label: string }[];
+  links?: { link: string; label: string }[];
 }
 
 const AvatarLoader = (props: IContentLoaderProps) => {
@@ -50,10 +48,10 @@ export function Navbar({ links }: NavbarProps) {
   const [userMenuOpened, setUserMenuOpened] = useBooleanToggle(false);
   const [user, loading] = useAuthState(auth);
 
-  const [active, setActive] = useState(links[0].link);
+  const [active, setActive] = useState(links?.[0].link);
   const { classes, cx } = useStyles();
 
-  const items = links.map((link) => (
+  const items = links?.map((link) => (
     <a
       key={link.label}
       href={link.link}
@@ -71,9 +69,9 @@ export function Navbar({ links }: NavbarProps) {
   ));
 
   return (
-    <Header height={HEADER_HEIGHT} mb={120} className={classes.root}>
+    <Header height={HEADER_HEIGHT} mb="lg" className={classes.root}>
       <Container className={classes.header}>
-        <Text>Bike Rental</Text>
+        <Title order={3}>Bike Rental</Title>
         <Group spacing={5} className={classes.links}>
           {items}
         </Group>

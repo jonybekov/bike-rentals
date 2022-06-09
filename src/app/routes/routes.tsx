@@ -10,12 +10,16 @@ import { EditBike } from "../../profile/bikes/edit-bike";
 import { Users } from "../../profile/users";
 import { CreateUser } from "../../profile/users/create-user";
 import { EditUser } from "../../profile/users/edit-user";
+import { MyReservations } from "../../home/my-reservations";
 
 export function AppRoutes() {
   return (
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Home />} />
+        <Route element={<ProtectedRoute />}>
+          <Route path="my-reservations" element={<MyReservations />} />
+        </Route>
         <Route path="register" element={<Register />} />
         <Route path="login" element={<Login />} />
         <Route path="reset" element={<Register />} />
