@@ -10,6 +10,8 @@ import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { DateRangePicker } from "@mantine/dates";
 import dayjs from "dayjs";
+import { useClient } from "react-supabase";
+import { SimpleField } from "../shared/types/common";
 
 const modelsRef = collection(db, "bike_models");
 
@@ -19,6 +21,7 @@ interface BikeFiltersProps {
 }
 
 export const BikeFilters = (props: BikeFiltersProps) => {
+  const supabase = useClient();
   const {
     handleSubmit,
     formState: { isDirty },
@@ -30,36 +33,21 @@ export const BikeFilters = (props: BikeFiltersProps) => {
     inputValue: string,
     callback: (options: Options<any>) => void
   ) => {
-    // const q = query(modelsRef, where("name", "<=", inputValue));
-    const querySnapshot = await getDocs(modelsRef);
-    const models = querySnapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    }));
+    const { data } = await supabase.from<SimpleField>("models").select();
 
-    return models;
+    return data ?? [];
   };
 
   const getColors = async () => {
-    const querySnapshot = await getDocs(collection(db, "colors"));
+    const { data } = await supabase.from<SimpleField>("colors").select();
 
-    const allColors = querySnapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    }));
-
-    return allColors;
+    return data ?? [];
   };
 
   const getLocations = async () => {
-    const querySnapshot = await getDocs(collection(db, "locations"));
+    const { data } = await supabase.from<SimpleField>("locations").select();
 
-    const allColors = querySnapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    }));
-
-    return allColors;
+    return data ?? [];
   };
 
   const onSubmit = (values: IBikeFilter) => {

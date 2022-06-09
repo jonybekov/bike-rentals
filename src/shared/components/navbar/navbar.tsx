@@ -21,6 +21,8 @@ import { useAuthState } from "react-firebase-hooks/auth";
 import { auth, logout } from "../../../app/services/firebase";
 import { Link } from "react-router-dom";
 import ContentLoader, { IContentLoaderProps } from "react-content-loader";
+import { useSignOut } from "react-supabase";
+import { useAuth } from "../../../app/contexts/auth-context";
 
 interface NavbarProps {
   links?: { link: string; label: string }[];
@@ -46,7 +48,8 @@ const AvatarLoader = (props: IContentLoaderProps) => {
 export function Navbar({ links }: NavbarProps) {
   const [opened, toggleOpened] = useBooleanToggle(false);
   const [userMenuOpened, setUserMenuOpened] = useBooleanToggle(false);
-  const [user, loading] = useAuthState(auth);
+  const { loading, user } = useAuth();
+  const [_, logOut] = useSignOut();
 
   const [active, setActive] = useState(links?.[0].link);
   const { classes, cx } = useStyles();
@@ -103,14 +106,14 @@ export function Navbar({ links }: NavbarProps) {
                     size={20}
                   />
                   <Text weight={500} size="sm" sx={{ lineHeight: 1 }} mr={3}>
-                    {user?.displayName}
+                    User
                   </Text>
                   <ChevronDown size={12} />
                 </Group>
               </UnstyledButton>
             }
           >
-            <Menu.Item icon={<Logout size={14} />} onClick={logout}>
+            <Menu.Item icon={<Logout size={14} />} onClick={logOut}>
               Logout
             </Menu.Item>
           </Menu>

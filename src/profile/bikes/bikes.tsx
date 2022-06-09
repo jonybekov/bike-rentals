@@ -26,24 +26,39 @@ import { useModals } from "@mantine/modals";
 import { IBike } from "../../shared/types/bike";
 import { Collection } from "../../app/services/collections";
 import { showNotification } from "@mantine/notifications";
+import { useClient, useSelect, useUpdate } from "react-supabase";
 
 export const Bikes = () => {
-  const [bikes, setBikes] = useState<IBike[]>([]);
-  const [loading, setLoading] = useState<boolean>(false);
+  const client = useClient();
+  const [{ data, fetching }, reexecute] = useSelect("bikes", {
+    columns: "id, model ( name ), color ( name ), location ( name ), available",
+  });
+
+  const [_, update] = useUpdate("bikes");
+
   const modals = useModals();
 
   const toggleAvailability = async (bikeId: string, value: boolean) => {
-    return updateDoc(doc(db, Collection.Bikes, bikeId), {
-      available: value,
-    }).then(() => {
+    return update(
+      {
+        available: value,
+      },
+      (query) => query.eq("id", bikeId)
+    ).then(() => {
       showNotification({ message: "Item updated" });
     });
   };
 
   const deleteBike = async (bikeId: string) => {
-    return deleteDoc(doc(db, Collection.Bikes, bikeId)).then(() => {
+    const { data, error } = await client
+      .from(Collection.Bikes)
+      .delete()
+      .match({ id: bikeId });
+
+    if (data) {
       showNotification({ message: "Item deleted" });
-    });
+      reexecute();
+    }
   };
 
   const openConfirmModal = (bike: IBike) =>
@@ -57,25 +72,7 @@ export const Bikes = () => {
       onConfirm: () => deleteBike(bike.id),
     });
 
-  useEffect(() => {
-    setLoading(true);
-    const unsubscribe = onSnapshot(collection(db, "bikes"), (querySnapshot) => {
-      const bikes = querySnapshot.docs.map(
-        (doc) =>
-          ({
-            id: doc.id,
-            ...doc.data(),
-          } as IBike)
-      );
-
-      setBikes(bikes);
-      setLoading(false);
-    });
-
-    return () => unsubscribe();
-  }, []);
-
-  const rows = bikes.map((element) => (
+  const rows = data?.map((element) => (
     <tr key={element.id}>
       <td>{element.model.name}</td>
       <td>{element.color.name}</td>
@@ -124,7 +121,7 @@ export const Bikes = () => {
             <th>Actions</th>
           </tr>
         </thead>
-        {loading ? (
+        {fetching ? (
           <tbody>
             <tr>
               <Center style={{ width: "100%" }}>

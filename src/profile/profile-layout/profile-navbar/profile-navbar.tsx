@@ -17,6 +17,8 @@ import { auth, logout } from "../../../app/services/firebase";
 import { UserButton } from "../user-button";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { NavLink } from "react-router-dom";
+import { useSignOut } from "react-supabase";
+import { useAuth } from "../../../app/contexts/auth-context";
 
 const data = [
   { link: "bikes", label: "Bikes", icon: BellRinging },
@@ -26,7 +28,8 @@ const data = [
 export function ProfileNavbar() {
   const { classes, cx } = useStyles();
   const [active, setActive] = useState("Billing");
-  const [user] = useAuthState(auth);
+  const [{ error, fetching }, signOut] = useSignOut();
+  const { session, user } = useAuth();
 
   const links = data.map((item) => (
     <NavLink
@@ -55,15 +58,15 @@ export function ProfileNavbar() {
 
       <Navbar.Section className={classes.footer}>
         <UserButton
-          image={user?.photoURL ?? ""}
-          name={user?.displayName ?? ""}
+          image={""}
+          name={`User #${user?.id}`}
           email={user?.email ?? ""}
         />
         <a
           href="#"
           className={classes.link}
           onClick={(event) => {
-            logout();
+            signOut();
           }}
         >
           <Logout className={classes.linkIcon} />

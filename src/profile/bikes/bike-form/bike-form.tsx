@@ -1,15 +1,12 @@
 import { InputWrapper, Button, Grid } from "@mantine/core";
-import { collection, getDocs, query, where } from "firebase/firestore";
-import { db } from "../../../app/services/firebase";
 
 import AsyncSelect from "react-select/async";
 import { Options } from "react-select";
 import { Controller, useForm } from "react-hook-form";
 import { IBikeForm } from "../../../shared/types/bike";
 import { useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
-
-const modelsRef = collection(db, "bike_models");
+import { useClient } from "react-supabase";
+import { SimpleField } from "../../../shared/types/common";
 
 interface BikeFormProps {
   onSubmit?: (values: IBikeForm) => Promise<void>;
@@ -18,6 +15,8 @@ interface BikeFormProps {
 
 export function BikeForm(props: BikeFormProps) {
   const [loading, setLoading] = useState<boolean>(false);
+  const supabase = useClient();
+
   const {
     handleSubmit,
     formState: { isDirty },
@@ -30,36 +29,21 @@ export function BikeForm(props: BikeFormProps) {
     inputValue: string,
     callback: (options: Options<any>) => void
   ) => {
-    // const q = query(modelsRef, where("name", "<=", inputValue));
-    const querySnapshot = await getDocs(modelsRef);
-    const models = querySnapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    }));
+    const { data } = await supabase.from<SimpleField>("models").select();
 
-    return models;
+    return data ?? [];
   };
 
   const getColors = async () => {
-    const querySnapshot = await getDocs(collection(db, "colors"));
+    const { data } = await supabase.from<SimpleField>("colors").select();
 
-    const allColors = querySnapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    }));
-
-    return allColors;
+    return data ?? [];
   };
 
   const getLocations = async () => {
-    const querySnapshot = await getDocs(collection(db, "locations"));
+    const { data } = await supabase.from<SimpleField>("locations").select();
 
-    const allColors = querySnapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    }));
-
-    return allColors;
+    return data ?? [];
   };
 
   const onSubmit = (values: IBikeForm) => {

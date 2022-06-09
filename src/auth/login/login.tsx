@@ -2,25 +2,26 @@ import { PaperProps } from "@mantine/core";
 import { useEffect } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { useNavigate } from "react-router-dom";
-import { logInWithEmailAndPassword, auth } from "../../app/services/firebase";
+import { useSignIn } from "react-supabase";
 import { AuthForm } from "../auth-form";
 import { IAuthForm } from "../types";
 
 export function Login(props: PaperProps<"div">) {
+  const [{ error, fetching, session, user }, signIn] = useSignIn();
+
   const handleLogin = ({ email, password }: IAuthForm) => {
-    logInWithEmailAndPassword(email, password);
+    signIn({ email, password });
   };
 
-  const [user, loading, error] = useAuthState(auth);
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (loading) {
+    if (fetching) {
       // maybe trigger a loading screen
       return;
     }
     if (user) navigate("/profile");
-  }, [user, loading]);
+  }, [user, fetching]);
 
-  return <AuthForm type="login" loading={loading} onSubmit={handleLogin} />;
+  return <AuthForm type="login" loading={fetching} onSubmit={handleLogin} />;
 }

@@ -1,5 +1,6 @@
 import { Container, Title, Grid, Center, Text } from "@mantine/core";
 import { useModals } from "@mantine/modals";
+import { showNotification } from "@mantine/notifications";
 import {
   collection,
   doc,
@@ -10,6 +11,8 @@ import {
 } from "firebase/firestore";
 import { useEffect, useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
+import { useClient } from "react-supabase";
+import { useAuth } from "../app/contexts/auth-context";
 import { Collection } from "../app/services/collections";
 import { auth, db } from "../app/services/firebase";
 import { BikeCard } from "../shared/components/bike-card";
@@ -19,51 +22,38 @@ import { IReservation } from "../shared/types/reservation";
 
 export function MyReservations() {
   const [loading, setLoading] = useState<boolean>(false);
-  const [bikes, setBikes] = useState<IBike[]>([]);
-  const [user] = useAuthState(auth);
-
+  const [reservations, setReservations] = useState<any[]>([]);
+  const { user } = useAuth();
+  const supabase = useClient();
   const modals = useModals();
 
+  const getReservations = async () => {
+    setLoading(true);
+    const { data } = await supabase
+      .from("reservations")
+      .select(
+        "id, bike:bikeId ( id, model (name), color (name), location (name)), startDate, endDate"
+      )
+      .eq("userId", user?.id);
+
+    setReservations(data ?? []);
+    setLoading(false);
+  };
+
   useEffect(() => {
-    const getReservations = async () => {
-      const q = query(
-        collection(db, Collection.Reservations),
-        where("userId", "==", user?.uid)
-      );
-      const querySnapshot = await getDocs(q);
-
-      const reservations = querySnapshot.docs.map(
-        (doc) =>
-          ({
-            id: doc.id,
-            ...doc.data(),
-          } as IReservation)
-      );
-
-      console.log(reservations);
-
-      Promise.all(
-        reservations.map(async (reservation) => {
-          const docQuery = doc(db, Collection.Bikes, reservation.bikeId);
-
-          const querySnapshot = await getDoc(docQuery);
-        })
-      );
-
-      //   setReservations(
-      //     reservations.map((item) => [
-      //       item.period.start?.toDate() ?? null,
-      //       item.period.end?.toDate() ?? null,
-      //     ])
-      //   );
-    };
-
     if (user) {
       getReservations();
     }
   }, [user]);
 
-  const openCancellationModal = () => {
+  const cancelReservation = async (reservationId: string) => {
+    await supabase.from("reservations").delete().match({ id: reservationId });
+
+    showNotification({ message: "Successfully cancelled" });
+    getReservations();
+  };
+
+  const openCancellationModal = (reservationId: string) => {
     modals.openConfirmModal({
       title: "Cancel reservation",
       centered: true,
@@ -72,9 +62,10 @@ export function MyReservations() {
       ),
       labels: { confirm: "Yes", cancel: "No" },
       confirmProps: { color: "red" },
-      onCancel: () => console.log("Cancel"),
-      onConfirm: () => console.log("Confirmed"),
+      onConfirm: () => cancelReservation(reservationId),
     });
+
+    return Promise.resolve();
   };
 
   return (
@@ -88,12 +79,20 @@ export function MyReservations() {
           <Center style={{ width: "100%" }}>
             <ThreeDots />
           </Center>
+        ) : !reservations || !reservations.length ? (
+          <Center style={{ width: "100%" }} py={100}>
+            <Title order={3} sx={() => ({ fontWeight: "normal" })}>
+              No reservations yet
+            </Title>
+          </Center>
         ) : (
-          bikes.map((bike) => (
-            <Grid.Col span={4} key={bike.id}>
+          reservations.map((reservation) => (
+            <Grid.Col span={4} key={reservation.id}>
               <BikeCard
-                bike={bike}
-                // onRent={openCancellationModal.bind(null, bike)}
+                period={[reservation.startDate, reservation.endDate]}
+                bike={reservation.bike}
+                action="cancel"
+                onClickAction={openCancellationModal.bind(null, reservation.id)}
               />
             </Grid.Col>
           ))

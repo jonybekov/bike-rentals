@@ -1,53 +1,55 @@
 import { Loader, Title } from "@mantine/core";
 import { showNotification } from "@mantine/notifications";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { Collection } from "../../../app/services/collections";
-import { db } from "../../../app/services/firebase";
-import { IBikeForm } from "../../../shared/types/bike";
+import { useSelect, UseSelectConfig, useUpdate } from "react-supabase";
+import { IBike, IBikeForm } from "../../../shared/types/bike";
 import { BikeForm } from "../bike-form";
 
 export function EditBike() {
   const { bikeId = "" } = useParams();
-  const [bike, setBike] = useState<IBikeForm>();
-  const [loading, setLoading] = useState<boolean>(true);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const getBike = async () => {
-      setLoading(true);
-      const docSnapshot = await getDoc(doc(db, Collection.Bikes, bikeId));
+  const config: UseSelectConfig = useMemo(
+    () => ({
+      columns:
+        "id, model ( name ), color ( name ), location ( name ), available",
+      filter: (query: any) => query.eq("id", bikeId).single(),
+    }),
+    []
+  );
 
-      const bikeData = docSnapshot.data() as IBikeForm;
-      setBike({
-        ...bikeData,
-      });
-      setLoading(false);
-    };
+  const [{ data, fetching }] = useSelect<IBike>("bikes", config);
+  const bike = data as unknown as IBike;
+  const [_, update] = useUpdate("bikes");
 
-    getBike();
-  }, []);
-
-  const handleEditBike = async (data: IBikeForm) => {
-    await updateDoc(doc(db, Collection.Bikes, bikeId), {
-      model: data.model,
-      color: data.color,
-      location: data.location,
-    });
+  const handleEditBike = async (formData: IBikeForm) => {
+    await update(
+      {
+        model: formData.model.id,
+        color: formData.color.id,
+        location: formData.location.id,
+      },
+      (query) => query.eq("id", bikeId)
+    );
 
     showNotification({ message: "Bike edited!" });
     navigate("/profile/bikes");
   };
 
-  if (loading) return <Loader />;
+  if (fetching) return <Loader />;
 
   return (
     <>
       <Title mb="lg" order={2}>
-        Edit {bike?.model.name}
+        Edit {bike?.model?.name}
       </Title>
-      <BikeForm initialValues={bike} onSubmit={handleEditBike} />;
+      <BikeForm
+        initialValues={data as unknown as IBikeForm}
+        onSubmit={handleEditBike}
+      />
+      ;
     </>
   );
 }

@@ -1,16 +1,16 @@
 import { Alert, Box, Button, Indicator } from "@mantine/core";
 import { showNotification } from "@mantine/notifications";
-import { addDoc, collection, getDocs, query, where } from "firebase/firestore";
 import { useEffect, useState } from "react";
 import { Collection } from "../app/services/collections";
-import { auth, db } from "../app/services/firebase";
 import { DateRangePicker } from "@mantine/dates";
 import dayjs from "dayjs";
-import { useAuthState } from "react-firebase-hooks/auth";
-import { IReservation, Period } from "../shared/types/reservation";
+import { Period } from "../shared/types/reservation";
 import { AlertCircle } from "tabler-icons-react";
+import { SupabaseClient, User } from "@supabase/supabase-js";
 
 interface RentModalProps {
+  supabase: SupabaseClient;
+  user: User | null;
   bikeId: string;
   onClose?: () => void;
 }
@@ -18,44 +18,31 @@ interface RentModalProps {
 export const RentModal = (props: RentModalProps) => {
   const [value, setValue] = useState<Period<Date>>([null, null]);
   const [loading, setLoading] = useState<boolean>(false);
-  const [user] = useAuthState(auth);
   const [reservations, setReservations] = useState<Period<Date>[]>([]);
 
   useEffect(() => {
     const getReservations = async () => {
-      const q = query(
-        collection(db, Collection.Reservations),
-        where("bikeId", "==", props.bikeId)
-      );
-      const querySnapshot = await getDocs(q);
+      const { data: reservations } = await props.supabase
+        .from("reservations")
+        .select("*")
+        .eq("bikeId", props.bikeId);
 
-      const reservations = querySnapshot.docs.map(
-        (doc) =>
-          ({
-            id: doc.id,
-            ...doc.data(),
-          } as IReservation)
+      const period = reservations?.map(
+        (item) => ([item.startDate, item.endDate] as Period<Date>) ?? []
       );
 
-      setReservations(
-        reservations.map((item) => [
-          item.period.start?.toDate() ?? null,
-          item.period.end?.toDate() ?? null,
-        ])
-      );
+      setReservations(period ?? []);
     };
 
     getReservations();
   }, []);
 
   const rentBike = async () => {
-    await addDoc(collection(db, Collection.Reservations), {
+    await props.supabase.from(Collection.Reservations).insert({
       bikeId: props.bikeId,
-      userId: user?.uid,
-      period: {
-        start: value[0],
-        end: value[1],
-      },
+      userId: props.user?.id,
+      startDate: value[0],
+      endDate: value[1],
     });
   };
 
@@ -72,6 +59,12 @@ export const RentModal = (props: RentModalProps) => {
   };
 
   const handleSubmit = async () => {
+    if (!value[0] || !value[1])
+      return showNotification({
+        message: "Please, select date range",
+        color: "red",
+      });
+
     setLoading(true);
 
     try {

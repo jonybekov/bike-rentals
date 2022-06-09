@@ -11,6 +11,7 @@ dayjs.extend(isBetween);
 
 import { createClient } from "@supabase/supabase-js";
 import { Provider } from "react-supabase";
+import { AuthContext, AuthProvider } from "./app/contexts/auth-context";
 
 const supabaseUrl = "https://zstiiuqggduyjjirnpmz.supabase.co";
 const supabaseKey =
@@ -23,7 +24,9 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
       <ModalsProvider>
         <NotificationsProvider>
           <Provider value={supabase}>
-            <App />
+            <AuthProvider>
+              <App />
+            </AuthProvider>
           </Provider>
         </NotificationsProvider>
       </ModalsProvider>

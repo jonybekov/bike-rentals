@@ -2,6 +2,7 @@ import React from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { Navigate, Outlet } from "react-router-dom";
 import { UserRole } from "../../shared/types/user";
+import { useAuth } from "../contexts/auth-context";
 import { auth } from "../services/firebase";
 
 interface IProtectedRouteProps {
@@ -14,15 +15,15 @@ export const ProtectedRoute = ({
   children,
   permissions,
 }: React.PropsWithChildren<IProtectedRouteProps>) => {
-  const [user, isLoading] = useAuthState(auth);
+  const { session, user, loading } = useAuth();
 
   // console.log(user, isLoading);
 
-  if (isLoading) {
+  if (loading) {
     return <div>Loading...</div>;
   }
 
-  if (user === null && !isLoading)
+  if (user === null && !loading)
     return (
       <Navigate
         to={{ pathname: "/login", search: `redirect=${location.pathname}` }}
