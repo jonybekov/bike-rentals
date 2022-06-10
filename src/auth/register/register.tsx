@@ -35,7 +35,7 @@ export function Register() {
 
     if (user) {
       showNotification({ title: "Successfully registered!", message: "" });
-      navigate("/", { replace: true });
+      navigate("/");
     }
   }, [user, user]);
 
