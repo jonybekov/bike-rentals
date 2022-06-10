@@ -21,9 +21,7 @@ export function AppRoutes() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route element={<ProtectedRoute />}>
-          <Route path="my-reservations" element={<MyReservations />} />
-        </Route>
+        <Route path="my-reservations" element={<MyReservations />} />
         <Route element={<AuthRoute />}>
           <Route path="register" element={<Register />} />
           <Route path="login" element={<Login />} />
