@@ -1,6 +1,10 @@
 {
   "name": "bike-rentals",
   "private": true,
+  "author": {
+    "name": "Azizbek Jonibekov",
+    "email": "jonibekov99@gmail.com"
+  },
   "version": "0.0.0",
   "scripts": {
     "dev": "vite",

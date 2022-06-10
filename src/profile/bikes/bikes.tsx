@@ -24,9 +24,7 @@ export const Bikes = () => {
   const [{ data, fetching }, reexecute] = useSelect("bikes", {
     columns: "id, model ( name ), color ( name ), location ( name ), available",
   });
-
   const [_, update] = useUpdate("bikes");
-
   const modals = useModals();
 
   const toggleAvailability = async (bikeId: string, value: boolean) => {

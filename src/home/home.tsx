@@ -110,7 +110,7 @@ export function Home() {
         <Grid>
           {fetching ? (
             <Center style={{ width: "100%" }}>
-              <ThreeDots />
+              <ThreeDots width={200} />
             </Center>
           ) : (
             bikes?.map((bike) => (
