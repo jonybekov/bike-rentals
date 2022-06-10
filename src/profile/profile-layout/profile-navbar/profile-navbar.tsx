@@ -1,21 +1,8 @@
-import React, { useState } from "react";
-import { Navbar, Group, Code, ScrollArea } from "@mantine/core";
-import {
-  BellRinging,
-  Fingerprint,
-  Key,
-  Settings,
-  TwoFA,
-  DatabaseImport,
-  Receipt2,
-  SwitchHorizontal,
-  Logout,
-  Users,
-} from "tabler-icons-react";
+import { useState } from "react";
+import { Navbar, Group, ScrollArea } from "@mantine/core";
+import { BellRinging, Logout, Users } from "tabler-icons-react";
 import { useStyles } from "./styles";
-import { auth, logout } from "../../../app/services/firebase";
 import { UserButton } from "../user-button";
-import { useAuthState } from "react-firebase-hooks/auth";
 import { NavLink } from "react-router-dom";
 import { useSignOut } from "react-supabase";
 import { useAuth } from "../../../app/contexts/auth-context";

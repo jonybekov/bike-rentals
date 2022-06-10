@@ -1,13 +1,13 @@
 import { Alert, Box, Button, Indicator } from "@mantine/core";
 import { showNotification } from "@mantine/notifications";
 import { useEffect, useState } from "react";
-import { Collection } from "../app/services/collections";
 import { DateRangePicker } from "@mantine/dates";
 import dayjs from "dayjs";
 import { Period } from "../shared/types/reservation";
 import { AlertCircle } from "tabler-icons-react";
 import { SupabaseClient } from "@supabase/supabase-js";
 import { IUser } from "../shared/types/user";
+import { Tables } from "../shared/types/tables";
 
 interface RentModalProps {
   supabase: SupabaseClient;
@@ -44,7 +44,7 @@ export const RentModal = ({
   }, []);
 
   const rentBike = async () => {
-    await supabase.from(Collection.Reservations).insert({
+    await supabase.from(Tables.Reservations).insert({
       bike_id: bikeId,
       userId: user?.id,
       start_date: value[0],

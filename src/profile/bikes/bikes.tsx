@@ -1,7 +1,6 @@
 import {
   ActionIcon,
   Button,
-  Grid,
   Group,
   Text,
   Switch,
@@ -11,22 +10,13 @@ import {
   Center,
   Box,
 } from "@mantine/core";
-import {
-  collection,
-  deleteDoc,
-  doc,
-  onSnapshot,
-  updateDoc,
-} from "firebase/firestore";
-import { useEffect, useState } from "react";
-import { db } from "../../app/services/firebase";
 import { Edit, Trash } from "tabler-icons-react";
 import { Link } from "react-router-dom";
 import { useModals } from "@mantine/modals";
 import { IBike } from "../../shared/types/bike";
-import { Collection } from "../../app/services/collections";
 import { showNotification } from "@mantine/notifications";
 import { useClient, useSelect, useUpdate } from "react-supabase";
+import { Tables } from "../../shared/types/tables";
 
 export const Bikes = () => {
   const client = useClient();
@@ -50,8 +40,8 @@ export const Bikes = () => {
   };
 
   const deleteBike = async (bikeId: string) => {
-    const { data, error } = await client
-      .from(Collection.Bikes)
+    const { data } = await client
+      .from(Tables.Bikes)
       .delete()
       .match({ id: bikeId });
 
@@ -68,7 +58,6 @@ export const Bikes = () => {
       labels: { confirm: "Delete", cancel: "Cancel" },
       confirmProps: { color: "red" },
       centered: true,
-      onCancel: () => console.log("Cancel"),
       onConfirm: () => deleteBike(bike.id),
     });
 

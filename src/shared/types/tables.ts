@@ -1,4 +1,4 @@
-export enum Collection {
+export enum Tables {
   Bikes = "bikes",
   BikeModels = "bike_models",
   Colors = "colors",

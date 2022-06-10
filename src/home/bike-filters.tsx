@@ -1,19 +1,12 @@
 import { InputWrapper, Button, Grid, Paper, Slider } from "@mantine/core";
-import { collection, getDocs, query, where } from "firebase/firestore";
-import { db } from "../app/services/firebase";
 
 import AsyncSelect from "react-select/async";
-import { Options } from "react-select";
 import { Controller, useForm } from "react-hook-form";
-import { IBikeFilter, IBikeForm } from "../shared/types/bike";
-import { useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { IBikeFilter } from "../shared/types/bike";
 import { DateRangePicker } from "@mantine/dates";
 import dayjs from "dayjs";
 import { useClient } from "react-supabase";
 import { SimpleField } from "../shared/types/common";
-
-const modelsRef = collection(db, "bike_models");
 
 interface BikeFiltersProps {
   loading?: boolean;

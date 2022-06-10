@@ -1,7 +1,3 @@
-import {
-  auth,
-  registerWithEmailAndPassword,
-} from "../../app/services/firebase";
 import { AuthForm } from "../auth-form";
 import { IAuthForm } from "../types";
 import { useEffect } from "react";

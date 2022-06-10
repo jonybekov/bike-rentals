@@ -1,4 +1,4 @@
-import { Session, User } from "@supabase/supabase-js";
+import { Session } from "@supabase/supabase-js";
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { useAuthStateChange, useClient } from "react-supabase";
 import { IUser } from "../../shared/types/user";

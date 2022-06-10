@@ -17,7 +17,7 @@ import { useBooleanToggle } from "@mantine/hooks";
 import { useStyles } from "./styles";
 import { HEADER_HEIGHT } from "./consts";
 import { ChevronDown, Logout } from "tabler-icons-react";
-import { Link } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
 import ContentLoader, { IContentLoaderProps } from "react-content-loader";
 import { useSignOut } from "react-supabase";
 import { useAuth } from "../../../app/contexts/auth-context";
@@ -73,7 +73,9 @@ export function Navbar({ links }: NavbarProps) {
   return (
     <Header height={HEADER_HEIGHT} mb="lg" className={classes.root}>
       <Container className={classes.header}>
-        <Title order={3}>Bike Rental</Title>
+        <Title order={3} color="black">
+          <Link to="/">Bike Rental</Link>
+        </Title>
         <Group spacing={5} className={classes.links}>
           {items}
         </Group>

@@ -1,6 +1,4 @@
 import { InputWrapper, Button, Grid, TextInput } from "@mantine/core";
-import { collection, getDocs } from "firebase/firestore";
-import { db } from "../../../app/services/firebase";
 
 import Select from "react-select";
 import { Controller, useForm } from "react-hook-form";

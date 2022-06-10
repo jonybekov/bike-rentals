@@ -1,9 +1,7 @@
 import React from "react";
-import { useAuthState } from "react-firebase-hooks/auth";
 import { Navigate, Outlet } from "react-router-dom";
 import { UserRole } from "../../shared/types/user";
 import { useAuth } from "../contexts/auth-context";
-import { auth } from "../services/firebase";
 
 interface IProtectedRouteProps {
   redirectPath?: string;

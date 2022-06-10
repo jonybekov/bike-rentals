@@ -1,11 +1,9 @@
 import { Title } from "@mantine/core";
 import { showNotification } from "@mantine/notifications";
-import { addDoc, collection } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
 import { useClient } from "react-supabase";
-import { Collection } from "../../../app/services/collections";
-import { db } from "../../../app/services/firebase";
 import { IBikeForm } from "../../../shared/types/bike";
+import { Tables } from "../../../shared/types/tables";
 import { BikeForm } from "../bike-form";
 
 export function CreateBike() {
@@ -13,7 +11,7 @@ export function CreateBike() {
   const client = useClient();
 
   const handleCreateBike = async (formData: IBikeForm) => {
-    const { data } = await client.from(Collection.Bikes).insert([
+    const { data } = await client.from(Tables.Bikes).insert([
       {
         model: formData.model.id,
         color: formData.color.id,

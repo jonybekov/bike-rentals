@@ -2,7 +2,7 @@ import { Button, Slider } from "@mantine/core";
 import { showNotification } from "@mantine/notifications";
 import { SupabaseClient } from "@supabase/supabase-js";
 import { useState } from "react";
-import { Collection } from "../app/services/collections";
+import { Tables } from "../shared/types/tables";
 import { IUser } from "../shared/types/user";
 
 interface RateModalProps {
@@ -23,7 +23,7 @@ export const RateModal = ({
 
   const rateBike = async () => {
     const { data: bikeRates } = await supabase
-      .from(Collection.BikeRates)
+      .from(Tables.BikeRates)
       .select("rate")
       .eq("bike_id", bikeId);
 
@@ -35,14 +35,14 @@ export const RateModal = ({
     );
 
     await Promise.all([
-      supabase.from(Collection.BikeRates).insert({
+      supabase.from(Tables.BikeRates).insert({
         bike_id: bikeId,
         user_id: user?.id,
         rate: value,
       }),
 
       supabase
-        .from(Collection.Bikes)
+        .from(Tables.Bikes)
         .update({
           avg_rate: avgRate,
         })

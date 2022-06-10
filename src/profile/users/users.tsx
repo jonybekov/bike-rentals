@@ -1,36 +1,30 @@
 import {
   ActionIcon,
   Button,
-  Grid,
   Group,
   Text,
-  Switch,
   Table,
   Box,
   Title,
+  Switch,
+  Center,
 } from "@mantine/core";
-import {
-  collection,
-  deleteDoc,
-  doc,
-  onSnapshot,
-  updateDoc,
-} from "firebase/firestore";
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { db } from "../../app/services/firebase";
+import { ChangeEvent, useCallback, useMemo, useState } from "react";
 import { Checklist, Edit, Trash } from "tabler-icons-react";
 import { Link } from "react-router-dom";
 import { useModals } from "@mantine/modals";
-import { IBike } from "../../shared/types/bike";
-import { Collection } from "../../app/services/collections";
 import { showNotification } from "@mantine/notifications";
 import { Filter, useClient, useSelect } from "react-supabase";
 import { useAuth } from "../../app/contexts/auth-context";
+import { IUser } from "../../shared/types/user";
+import ThreeDots from "../../shared/components/three-dots";
 
 export const Users = () => {
   const modals = useModals();
   const supabase = useClient();
   const { user } = useAuth();
+  const [reservedUserIds, setReservedUserIds] = useState<string[] | null>([]);
+  const [loading, setLoading] = useState<boolean>(false);
 
   const filter: Filter<any> = useCallback(
     (query) => query.neq("role", 3).neq("id", user?.id),
@@ -41,6 +35,24 @@ export const Users = () => {
     filter,
   });
 
+  const handleToggle = async (event: ChangeEvent<HTMLInputElement>) => {
+    if (event.currentTarget.checked) {
+      setLoading(true);
+      const { data } = await supabase.from("reservations").select("*");
+      setReservedUserIds([...new Set(data?.map((item) => item.userId) ?? [])]);
+      setLoading(false);
+    } else {
+      setReservedUserIds(null);
+    }
+  };
+
+  const users =
+    reservedUserIds === null
+      ? data
+      : data?.filter((user) => reservedUserIds.includes(user.id));
+
+  console.log(users, data);
+
   const deleteUser = async (userId: string) => {
     const { data } = await supabase.auth.api.deleteUser(userId);
 
@@ -50,7 +62,7 @@ export const Users = () => {
     }
   };
 
-  const openConfirmModal = (user: any) =>
+  const openConfirmModal = (user: IUser) =>
     modals.openConfirmModal({
       title: "Confirm action",
       children: (
@@ -59,11 +71,10 @@ export const Users = () => {
       labels: { confirm: "Delete", cancel: "Cancel" },
       confirmProps: { color: "red" },
       centered: true,
-      onCancel: () => console.log("Cancel"),
       onConfirm: () => deleteUser(user.id),
     });
 
-  const rows = data?.map((element) => (
+  const rows = users?.map((element) => (
     <tr key={element.id}>
       <td>{element.id}</td>
       <td>{element.display_name}</td>
@@ -94,23 +105,33 @@ export const Users = () => {
     <>
       <Box sx={() => ({ display: "flex", justifyContent: "space-between" })}>
         <Title order={2}>Users</Title>
-
+        <Switch
+          onChange={handleToggle}
+          readOnly={loading}
+          label="Show users with reservations"
+        />
         <Link to="add">
           <Button>Add User</Button>
         </Link>
       </Box>
-      <Table mt="lg">
-        <thead>
-          <tr>
-            <th>Id</th>
-            <th>Display Name</th>
-            <th>Email</th>
-            <th>Role</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>{rows}</tbody>
-      </Table>
+      {loading || fetching ? (
+        <Center style={{ width: "100%" }}>
+          <ThreeDots width={200} />
+        </Center>
+      ) : (
+        <Table mt="lg">
+          <thead>
+            <tr>
+              <th>Id</th>
+              <th>Display Name</th>
+              <th>Email</th>
+              <th>Role</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>{rows}</tbody>
+        </Table>
+      )}
     </>
   );
 };

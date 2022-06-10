@@ -1,11 +1,7 @@
 import { Title } from "@mantine/core";
 import { showNotification } from "@mantine/notifications";
-import { addDoc, collection } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
 import { useClient, useSignUp } from "react-supabase";
-import { Collection } from "../../../app/services/collections";
-import { db } from "../../../app/services/firebase";
-import { IAuthForm } from "../../../auth/types";
 import { IUserForm } from "../../../shared/types/user";
 import { UserForm } from "../user-form";
 
@@ -17,7 +13,7 @@ export function CreateUser() {
   const SIMPLE_USER_ROLE_ID = 1;
 
   const handleCreateUser = async ({
-    displayName,
+    display_name,
     email,
     password,
     role,
@@ -37,7 +33,7 @@ export function CreateUser() {
       const { data: newUserRole } = await supabase.from("profiles").insert([
         {
           id: user.id,
-          display_name: displayName,
+          display_name,
           email,
           role: role.id,
         },

@@ -1,14 +1,4 @@
-import React from "react";
-import {
-  Card,
-  Image,
-  Text,
-  Group,
-  Badge,
-  createStyles,
-  Center,
-  Button,
-} from "@mantine/core";
+import { Card, Text, Group, Button } from "@mantine/core";
 import { GasStation, Gauge, ManualGearbox, Users } from "tabler-icons-react";
 import { useStyles } from "./styles";
 import { IBike } from "../../types/bike";
