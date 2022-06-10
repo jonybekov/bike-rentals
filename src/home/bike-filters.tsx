@@ -1,4 +1,4 @@
-import { InputWrapper, Button, Grid, Paper } from "@mantine/core";
+import { InputWrapper, Button, Grid, Paper, Slider } from "@mantine/core";
 import { collection, getDocs, query, where } from "firebase/firestore";
 import { db } from "../app/services/firebase";
 
@@ -22,31 +22,20 @@ interface BikeFiltersProps {
 
 export const BikeFilters = (props: BikeFiltersProps) => {
   const supabase = useClient();
-  const {
-    handleSubmit,
-    formState: { isDirty },
-    register,
-    control,
-  } = useForm<IBikeFilter>();
+  const { handleSubmit, control } = useForm<IBikeFilter>();
 
-  const getBikeModels = async (
-    inputValue: string,
-    callback: (options: Options<any>) => void
-  ) => {
+  const getBikeModels = async () => {
     const { data } = await supabase.from<SimpleField>("models").select();
-
     return data ?? [];
   };
 
   const getColors = async () => {
     const { data } = await supabase.from<SimpleField>("colors").select();
-
     return data ?? [];
   };
 
   const getLocations = async () => {
     const { data } = await supabase.from<SimpleField>("locations").select();
-
     return data ?? [];
   };
 
@@ -106,6 +95,28 @@ export const BikeFilters = (props: BikeFiltersProps) => {
                     defaultOptions
                     loadOptions={getColors}
                     {...field}
+                  />
+                )}
+              />
+            </InputWrapper>
+            <InputWrapper label="Average Rate" mt="md">
+              <Controller
+                name="avgRate"
+                control={control}
+                render={({ field }) => (
+                  <Slider
+                    color="yellow"
+                    {...field}
+                    step={1}
+                    max={5}
+                    min={1}
+                    marks={[
+                      { value: 1, label: "1" },
+                      { value: 2, label: "2" },
+                      { value: 3, label: "3" },
+                      { value: 4, label: "4" },
+                      { value: 5, label: "5" },
+                    ]}
                   />
                 )}
               />

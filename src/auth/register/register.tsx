@@ -3,19 +3,35 @@ import {
   registerWithEmailAndPassword,
 } from "../../app/services/firebase";
 import { AuthForm } from "../auth-form";
-import { useAuthState } from "react-firebase-hooks/auth";
 import { IAuthForm } from "../types";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { showNotification } from "@mantine/notifications";
-import { useSignUp } from "react-supabase";
+import { useClient, useSignUp } from "react-supabase";
 
 export function Register() {
   const navigate = useNavigate();
-  const [{ error, fetching, session, user }, signUp] = useSignUp();
+  const [{ fetching, user }, signUp] = useSignUp();
+  const supabase = useClient();
+  const USER_ROLE_ID = 1;
 
-  const handleRegister = ({ name, email, password }: IAuthForm) => {
-    registerWithEmailAndPassword(name, email, password);
+  const handleRegister = async ({ name, email, password }: IAuthForm) => {
+    const { user } = await signUp({
+      email,
+      password,
+      display_name: name,
+    } as any);
+
+    if (user) {
+      await supabase.from("profiles").insert([
+        {
+          id: user.id,
+          display_name: name,
+          email,
+          role: USER_ROLE_ID,
+        },
+      ]);
+    }
   };
 
   useEffect(() => {

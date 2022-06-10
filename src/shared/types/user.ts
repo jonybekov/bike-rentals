@@ -1,13 +1,19 @@
 export enum UserRole {
-  User = "User",
-  Manager = "Manager",
+  User = "user",
+  Manager = "manager",
+  Admin = "admin",
 }
 
 export interface IUser {
   id: string;
-  displayName: string;
+  display_name: string;
   email: string;
-  role: UserRole;
+  role: {
+    id: number;
+    name: UserRole;
+  };
 }
 
-export type IUserForm = Omit<IUser, "id">;
+export interface IUserForm extends Omit<IUser, "id"> {
+  password?: string;
+}

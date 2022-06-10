@@ -16,77 +16,67 @@ import {
   onSnapshot,
   updateDoc,
 } from "firebase/firestore";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { db } from "../../app/services/firebase";
-import { Edit, Trash } from "tabler-icons-react";
+import { Checklist, Edit, Trash } from "tabler-icons-react";
 import { Link } from "react-router-dom";
 import { useModals } from "@mantine/modals";
 import { IBike } from "../../shared/types/bike";
 import { Collection } from "../../app/services/collections";
 import { showNotification } from "@mantine/notifications";
+import { Filter, useClient, useSelect } from "react-supabase";
+import { useAuth } from "../../app/contexts/auth-context";
 
 export const Users = () => {
-  const [bikes, setBikes] = useState<IBike[]>([]);
   const modals = useModals();
+  const supabase = useClient();
+  const { user } = useAuth();
 
-  const toggleAvailability = async (bikeId: string, value: boolean) => {
-    return updateDoc(doc(db, Collection.Bikes, bikeId), {
-      available: value,
-    }).then(() => {
-      showNotification({ message: "Item updated" });
-    });
+  const filter: Filter<any> = useCallback(
+    (query) => query.neq("role", 3).neq("id", user?.id),
+    []
+  );
+  const [{ data, fetching }, reexecute] = useSelect("profiles", {
+    columns: "id, display_name, email, role(name)",
+    filter,
+  });
+
+  const deleteUser = async (userId: string) => {
+    const { data } = await supabase.auth.api.deleteUser(userId);
+
+    if (data) {
+      showNotification({ message: "User deleted" });
+      reexecute();
+    }
   };
 
-  const deleteBike = async (bikeId: string) => {
-    return deleteDoc(doc(db, Collection.Bikes, bikeId)).then(() => {
-      showNotification({ message: "Item deleted" });
-    });
-  };
-
-  const openConfirmModal = (bike: IBike) =>
+  const openConfirmModal = (user: any) =>
     modals.openConfirmModal({
       title: "Confirm action",
-      children: <Text size="sm">Do you want to delete {bike.model.name}?</Text>,
+      children: (
+        <Text size="sm">Do you want to delete {user.display_name}?</Text>
+      ),
       labels: { confirm: "Delete", cancel: "Cancel" },
       confirmProps: { color: "red" },
       centered: true,
       onCancel: () => console.log("Cancel"),
-      onConfirm: () => deleteBike(bike.id),
+      onConfirm: () => deleteUser(user.id),
     });
 
-  useEffect(() => {
-    const unsubscribe = onSnapshot(collection(db, "bikes"), (querySnapshot) => {
-      const bikes = querySnapshot.docs.map(
-        (doc) =>
-          ({
-            id: doc.id,
-            ...doc.data(),
-          } as IBike)
-      );
-
-      setBikes(bikes);
-    });
-
-    return () => unsubscribe();
-  }, []);
-
-  const rows = bikes.map((element) => (
+  const rows = data?.map((element) => (
     <tr key={element.id}>
-      <td>{element.model.name}</td>
-      <td>{element.color.name}</td>
-      <td>{element.location.name}</td>
-      <td>
-        <Switch
-          defaultChecked={element.available}
-          onChange={toggleAvailability.bind(
-            null,
-            element.id,
-            !Boolean(element.available)
-          )}
-        />
-      </td>
+      <td>{element.id}</td>
+      <td>{element.display_name}</td>
+      <td>{element.email}</td>
+      <td>{element.role.name}</td>
+
       <td>
         <Group spacing="sm">
+          <Link to={`${element.id}/reservations`}>
+            <ActionIcon>
+              <Checklist size={20} />
+            </ActionIcon>
+          </Link>
           <Link to={`${element.id}/edit`}>
             <ActionIcon>
               <Edit size={20} />
@@ -112,10 +102,10 @@ export const Users = () => {
       <Table mt="lg">
         <thead>
           <tr>
-            <th>Model name</th>
-            <th>Color</th>
-            <th>Location</th>
-            <th>Avialability</th>
+            <th>Id</th>
+            <th>Display Name</th>
+            <th>Email</th>
+            <th>Role</th>
             <th>Actions</th>
           </tr>
         </thead>

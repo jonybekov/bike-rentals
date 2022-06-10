@@ -1,9 +1,8 @@
 import { Loader, Title } from "@mantine/core";
 import { showNotification } from "@mantine/notifications";
-import { doc, getDoc, updateDoc } from "firebase/firestore";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { useSelect, UseSelectConfig, useUpdate } from "react-supabase";
+import { Filter, useSelect, useUpdate } from "react-supabase";
 import { IBike, IBikeForm } from "../../../shared/types/bike";
 import { BikeForm } from "../bike-form";
 
@@ -11,16 +10,15 @@ export function EditBike() {
   const { bikeId = "" } = useParams();
   const navigate = useNavigate();
 
-  const config: UseSelectConfig = useMemo(
-    () => ({
-      columns:
-        "id, model ( name ), color ( name ), location ( name ), available",
-      filter: (query: any) => query.eq("id", bikeId).single(),
-    }),
+  const filter: Filter<any> = useCallback(
+    (query: any) => query.eq("id", bikeId).single(),
     []
   );
 
-  const [{ data, fetching }] = useSelect<IBike>("bikes", config);
+  const [{ data, fetching }] = useSelect<IBike>("bikes", {
+    columns: "id, model ( name ), color ( name ), location ( name ), available",
+    filter,
+  });
   const bike = data as unknown as IBike;
   const [_, update] = useUpdate("bikes");
 

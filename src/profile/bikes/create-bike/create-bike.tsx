@@ -13,7 +13,7 @@ export function CreateBike() {
   const client = useClient();
 
   const handleCreateBike = async (formData: IBikeForm) => {
-    const { data, error } = await client.from(Collection.Bikes).insert([
+    const { data } = await client.from(Collection.Bikes).insert([
       {
         model: formData.model.id,
         color: formData.color.id,

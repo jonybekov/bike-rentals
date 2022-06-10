@@ -4,4 +4,5 @@ export enum Collection {
   Colors = "colors",
   Locations = "locations",
   Reservations = "reservations",
+  BikeRates = "bike_rates",
 }

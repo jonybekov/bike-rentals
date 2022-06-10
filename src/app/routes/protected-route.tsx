@@ -7,17 +7,15 @@ import { auth } from "../services/firebase";
 
 interface IProtectedRouteProps {
   redirectPath?: string;
-  permissions?: UserRole[];
+  allowTo?: UserRole[];
 }
 
 export const ProtectedRoute = ({
   redirectPath = "/access-denied",
   children,
-  permissions,
+  allowTo,
 }: React.PropsWithChildren<IProtectedRouteProps>) => {
-  const { session, user, loading } = useAuth();
-
-  // console.log(user, isLoading);
+  const { user, loading } = useAuth();
 
   if (loading) {
     return <div>Loading...</div>;
@@ -31,9 +29,7 @@ export const ProtectedRoute = ({
       />
     );
 
-  // const hasPermission = permissions?.some((permission) => role === permission);
-
-  // if (!hasPermission) {
+  // if (user && !allowTo?.includes(user.role.name)) {
   //   return <Navigate to={redirectPath} replace />;
   // }
 

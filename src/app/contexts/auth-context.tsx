@@ -1,10 +1,11 @@
 import { Session, User } from "@supabase/supabase-js";
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { useAuthStateChange, useClient } from "react-supabase";
+import { IUser } from "../../shared/types/user";
 
 interface Auth {
   session: Session | null;
-  user: User | null;
+  user: IUser | null;
   loading: boolean;
 }
 
@@ -19,18 +20,41 @@ export function useAuth() {
 }
 
 export function AuthProvider({ children }: React.PropsWithChildren<{}>) {
-  const client = useClient();
+  const supabase = useClient();
   const [state, setState] = useState<Auth>(initialState);
 
-  useEffect(() => {
-    const session = client.auth.session();
+  const getUserProfile = async (userId?: string) => {
+    return supabase
+      .from("profiles")
+      .select("id, display_name, email, role(name)")
+      .eq("id", userId)
+      .single();
+  };
 
-    setState({ session, user: session?.user ?? null, loading: false });
+  useEffect(() => {
+    const session = supabase.auth.session();
+
+    getUserProfile(session?.user?.id).then(({ data }) => {
+      setState({ session, user: (data as IUser) ?? null, loading: false });
+    });
   }, []);
 
   useAuthStateChange((event, session) => {
-    console.log(`Supbase auth event: ${event}`, session);
-    setState({ session, user: session?.user ?? null, loading: false });
+    if (session?.user) {
+      getUserProfile(session.user.id).then(({ data }) => {
+        setState({
+          session,
+          user: data ?? null,
+          loading: false,
+        });
+      });
+    } else {
+      setState({
+        session,
+        user: null,
+        loading: false,
+      });
+    }
   });
 
   return <AuthContext.Provider value={state}>{children}</AuthContext.Provider>;

@@ -27,9 +27,9 @@ const data = [
 
 export function ProfileNavbar() {
   const { classes, cx } = useStyles();
-  const [active, setActive] = useState("Billing");
-  const [{ error, fetching }, signOut] = useSignOut();
-  const { session, user } = useAuth();
+  const [active] = useState("Billing");
+  const [_, signOut] = useSignOut();
+  const { user } = useAuth();
 
   const links = data.map((item) => (
     <NavLink
@@ -48,8 +48,7 @@ export function ProfileNavbar() {
     <Navbar height={700} width={{ sm: 300 }} p="md">
       <Navbar.Section>
         <Group className={classes.header} position="apart">
-          Logo
-          <Code sx={{ fontWeight: 700 }}>v3.1.2</Code>
+          Dashboard
         </Group>
       </Navbar.Section>
       <Navbar.Section grow component={ScrollArea}>
@@ -59,7 +58,7 @@ export function ProfileNavbar() {
       <Navbar.Section className={classes.footer}>
         <UserButton
           image={""}
-          name={`User #${user?.id}`}
+          name={user?.display_name ?? ""}
           email={user?.email ?? ""}
         />
         <a

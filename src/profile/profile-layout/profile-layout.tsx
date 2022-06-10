@@ -1,20 +1,9 @@
-import {
-  AppShell,
-  Navbar,
-  Header,
-  Footer,
-  Aside,
-  Text,
-  MediaQuery,
-  Burger,
-  Paper,
-  useMantineTheme,
-} from "@mantine/core";
-import React, { useState } from "react";
+import { AppShell, Paper, useMantineTheme } from "@mantine/core";
+import React from "react";
 import { Outlet } from "react-router-dom";
 import { ProfileNavbar } from "./profile-navbar";
 
-export function ProfileLayout({ children }: React.PropsWithChildren<any>) {
+export function ProfileLayout({}: React.PropsWithChildren<any>) {
   const theme = useMantineTheme();
 
   return (

@@ -26,12 +26,14 @@ interface BikeCardProps {
   bike: IBike;
   action?: "rent" | "cancel";
   onClickAction?: () => Promise<void>;
+  onRateBike?: () => void;
 }
 
 export function BikeCard({
   period,
   bike,
   onClickAction,
+  onRateBike,
   action = "rent",
 }: BikeCardProps) {
   const { classes } = useStyles();
@@ -39,10 +41,6 @@ export function BikeCard({
 
   return (
     <Card withBorder radius="md" className={classes.card}>
-      {/* <Card.Section className={classes.imageSection}>
-        <Image src={bike.image} alt="Tesla Model S" />
-      </Card.Section> */}
-
       <Group position="apart">
         <div>
           <Text weight={500}>{bike.model?.name}</Text>
@@ -55,11 +53,15 @@ export function BikeCard({
               {dayjs(period?.[1]).format("DD.MM.YYYY")}
             </Text>
           )}
+
+          <Text size="xs" color="dimmed">
+            Average rate: {bike.avg_rate ? `${bike.avg_rate} out of 5` : "N/A"}
+          </Text>
         </div>
       </Group>
 
       <Card.Section className={classes.section} mt="md">
-        <Group spacing={30}>
+        <Group spacing={16}>
           {action === "cancel" ? (
             <Button
               radius="xl"
@@ -70,14 +72,24 @@ export function BikeCard({
               Cancel
             </Button>
           ) : (
-            <Button
-              disabled={unavailable}
-              radius="xl"
-              style={{ flex: 1 }}
-              onClick={unavailable ? undefined : () => onClickAction?.()}
-            >
-              {unavailable ? "Unavailable" : "Rent now"}
-            </Button>
+            <>
+              <Button
+                disabled={unavailable}
+                radius="xl"
+                style={{ flex: 1 }}
+                onClick={unavailable ? undefined : () => onClickAction?.()}
+              >
+                {unavailable ? "Unavailable" : "Rent now"}
+              </Button>
+              <Button
+                radius="xl"
+                color="gray"
+                style={{ flex: 1 }}
+                onClick={onRateBike}
+              >
+                Rate this bike
+              </Button>
+            </>
           )}
         </Group>
       </Card.Section>

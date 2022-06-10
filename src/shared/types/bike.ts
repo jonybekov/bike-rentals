@@ -10,6 +10,7 @@ export interface IBike {
   location: SimpleField;
   color: Color;
   available?: boolean;
+  avg_rate?: number;
 }
 
 export interface IBikeForm {
@@ -21,5 +22,5 @@ export interface IBikeForm {
 
 export interface IBikeFilter extends IBikeForm {
   period: Period<Date>;
-  rating: number;
+  avgRate: number;
 }

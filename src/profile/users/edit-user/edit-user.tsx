@@ -1,53 +1,50 @@
 import { Loader, Title } from "@mantine/core";
-import { useForceUpdate } from "@mantine/hooks";
 import { showNotification } from "@mantine/notifications";
-import { addDoc, collection, doc, getDoc, updateDoc } from "firebase/firestore";
-import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
-import { Collection } from "../../../app/services/collections";
-import { db } from "../../../app/services/firebase";
-import { IBikeForm } from "../../../shared/types/bike";
-import { IUserForm } from "../../../shared/types/user";
+import { useCallback } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { Filter, useSelect, useUpdate } from "react-supabase";
+import { IUser, IUserForm } from "../../../shared/types/user";
 import { UserForm } from "../user-form";
 
 export function EditUser() {
   const { userId = "" } = useParams();
-  const [user, setUser] = useState<IUserForm>();
-  const [loading, setLoading] = useState<boolean>(true);
+  const navigate = useNavigate();
 
-  useEffect(() => {
-    const getBike = async () => {
-      setLoading(true);
-      const docSnapshot = await getDoc(doc(db, Collection.Bikes, userId));
+  const filter: Filter<any> = useCallback(
+    (query: any) => query.eq("id", userId).single(),
+    []
+  );
 
-      const userData = docSnapshot.data() as IUserForm;
-      setUser({
-        ...userData,
-      });
-      setLoading(false);
-    };
+  const [{ data, fetching }] = useSelect<IUserForm>("profiles", {
+    columns: "id, display_name, email, role(name)",
+    filter,
+  });
+  const user = data as unknown as IUser;
+  const [_, update] = useUpdate("profiles");
 
-    getBike();
-  }, []);
+  const handleEditUser = async (formData: IUserForm) => {
+    console.log(formData);
 
-  const handleEditUser = async (data: IUserForm) => {
-    // await updateDoc(doc(db, Collection.Bikes, userId), {
-    //   model: data,
-    //   color: data.color,
-    //   location: data.location,
-    // });
+    await update(
+      {
+        display_name: formData.display_name,
+        role: formData.role.id,
+      },
+      (query) => query.eq("id", userId)
+    );
 
-    showNotification({ message: "User edited" });
+    showNotification({ message: "User edited!" });
+    navigate("/profile/users");
   };
 
-  if (loading) return <Loader />;
+  if (fetching) return <Loader />;
 
   return (
     <>
       <Title mb="lg" order={2}>
-        Edit {user?.displayName}
+        Edit {user?.display_name}
       </Title>
-      <UserForm initialValues={user} onSubmit={handleEditUser} />;
+      <UserForm mode="edit" initialValues={user} onSubmit={handleEditUser} />;
     </>
   );
 }

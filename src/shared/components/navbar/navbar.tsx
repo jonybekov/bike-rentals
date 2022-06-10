@@ -17,12 +17,11 @@ import { useBooleanToggle } from "@mantine/hooks";
 import { useStyles } from "./styles";
 import { HEADER_HEIGHT } from "./consts";
 import { ChevronDown, Logout } from "tabler-icons-react";
-import { useAuthState } from "react-firebase-hooks/auth";
-import { auth, logout } from "../../../app/services/firebase";
 import { Link } from "react-router-dom";
 import ContentLoader, { IContentLoaderProps } from "react-content-loader";
 import { useSignOut } from "react-supabase";
 import { useAuth } from "../../../app/contexts/auth-context";
+import { UserRole } from "../../types/user";
 
 interface NavbarProps {
   links?: { link: string; label: string }[];
@@ -101,18 +100,27 @@ export function Navbar({ links }: NavbarProps) {
               >
                 <Group spacing={7}>
                   <Avatar
-                    src={`https://ui-avatars.com/api/?name=${user?.displayName}`}
+                    src={`https://ui-avatars.com/api/?name=${user?.display_name}`}
                     radius="xl"
                     size={20}
                   />
                   <Text weight={500} size="sm" sx={{ lineHeight: 1 }} mr={3}>
-                    User
+                    {user?.display_name}
                   </Text>
                   <ChevronDown size={12} />
                 </Group>
               </UnstyledButton>
             }
           >
+            {(user.role.name === UserRole.Admin ||
+              user.role.name === UserRole.Manager) && (
+              <Link to="/profile/bikes">
+                <Menu.Item>Dashboard</Menu.Item>
+              </Link>
+            )}
+            <Link to="/my-reservations">
+              <Menu.Item>My Reservations</Menu.Item>
+            </Link>
             <Menu.Item icon={<Logout size={14} />} onClick={logOut}>
               Logout
             </Menu.Item>

@@ -6,13 +6,16 @@ import Select from "react-select";
 import { Controller, useForm } from "react-hook-form";
 import { useState } from "react";
 import { IUserForm, UserRole } from "../../../shared/types/user";
+import { useClient } from "react-supabase";
+import AsyncSelect from "react-select/async";
 
 interface UserFormProps {
   onSubmit?: (values: IUserForm) => Promise<void>;
   initialValues?: IUserForm;
+  mode?: "create" | "edit";
 }
 
-export function UserForm(props: UserFormProps) {
+export function UserForm({ mode = "create", ...props }: UserFormProps) {
   const [loading, setLoading] = useState<boolean>(false);
   const {
     handleSubmit,
@@ -22,6 +25,14 @@ export function UserForm(props: UserFormProps) {
   } = useForm<IUserForm>({
     defaultValues: props.initialValues,
   });
+
+  const supabase = useClient();
+
+  const getRoles = async () => {
+    const { data } = await supabase.from("roles").select("*");
+
+    return data ?? [];
+  };
 
   const onSubmit = (values: IUserForm) => {
     setLoading(true);
@@ -38,32 +49,36 @@ export function UserForm(props: UserFormProps) {
           <TextInput
             required
             label="Display Name"
-            {...register("displayName", { required: true })}
+            {...register("display_name", { required: true })}
           />
           <TextInput
+            disabled={mode === "edit"}
             required
             label="Email"
             {...register("email", { required: true })}
           />
+          {mode === "create" && (
+            <TextInput
+              required
+              label="Password"
+              {...register("password", { required: true })}
+            />
+          )}
           <InputWrapper label="Role" required mb="sm">
             <Controller
               name="role"
               control={control}
               rules={{ required: true }}
               render={({ field }) => (
-                <Select<any>
+                <AsyncSelect<any>
                   isSearchable={false}
+                  cacheOptions
+                  defaultOptions
+                  filterOption={(item) => item.label !== "admin"}
+                  getOptionLabel={(item) => item.name}
+                  getOptionValue={(item) => item.id}
                   isClearable
-                  options={[
-                    {
-                      value: UserRole.Manager,
-                      label: "Manager",
-                    },
-                    {
-                      value: UserRole.User,
-                      label: "User",
-                    },
-                  ]}
+                  loadOptions={getRoles}
                   {...field}
                 />
               )}

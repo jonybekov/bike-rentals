@@ -6,29 +6,35 @@ import { DateRangePicker } from "@mantine/dates";
 import dayjs from "dayjs";
 import { Period } from "../shared/types/reservation";
 import { AlertCircle } from "tabler-icons-react";
-import { SupabaseClient, User } from "@supabase/supabase-js";
+import { SupabaseClient } from "@supabase/supabase-js";
+import { IUser } from "../shared/types/user";
 
 interface RentModalProps {
   supabase: SupabaseClient;
-  user: User | null;
+  user: IUser | null;
   bikeId: string;
   onClose?: () => void;
 }
 
-export const RentModal = (props: RentModalProps) => {
+export const RentModal = ({
+  supabase,
+  bikeId,
+  user,
+  onClose,
+}: RentModalProps) => {
   const [value, setValue] = useState<Period<Date>>([null, null]);
   const [loading, setLoading] = useState<boolean>(false);
   const [reservations, setReservations] = useState<Period<Date>[]>([]);
 
   useEffect(() => {
     const getReservations = async () => {
-      const { data: reservations } = await props.supabase
+      const { data: reservations } = await supabase
         .from("reservations")
         .select("*")
-        .eq("bikeId", props.bikeId);
+        .eq("bike_id", bikeId);
 
       const period = reservations?.map(
-        (item) => ([item.startDate, item.endDate] as Period<Date>) ?? []
+        (item) => ([item.start_date, item.end_date] as Period<Date>) ?? []
       );
 
       setReservations(period ?? []);
@@ -38,11 +44,11 @@ export const RentModal = (props: RentModalProps) => {
   }, []);
 
   const rentBike = async () => {
-    await props.supabase.from(Collection.Reservations).insert({
-      bikeId: props.bikeId,
-      userId: props.user?.id,
-      startDate: value[0],
-      endDate: value[1],
+    await supabase.from(Collection.Reservations).insert({
+      bike_id: bikeId,
+      userId: user?.id,
+      start_date: value[0],
+      end_date: value[1],
     });
   };
 
@@ -70,7 +76,7 @@ export const RentModal = (props: RentModalProps) => {
     try {
       await rentBike();
       showNotification({ message: "Bike sucessfully rented!" });
-      props.onClose?.();
+      onClose?.();
     } catch (err: any) {
       showNotification({ message: err.message });
     } finally {
