@@ -52,8 +52,6 @@ export const Users = () => {
       ? data
       : data?.filter((user) => reservedUserIds.includes(user.id));
 
-  console.log(users, data);
-
   const deleteUser = async (userId: string) => {
     const { data } = await supabase.auth.api.deleteUser(userId);
 

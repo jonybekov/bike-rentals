@@ -29,7 +29,11 @@ export function AppRoutes() {
           <Route path="login" element={<Login />} />
         </Route>
         <Route path="reset" element={<Register />} />
-        <Route element={<ProtectedRoute allowTo={[UserRole.Manager]} />}>
+        <Route
+          element={
+            <ProtectedRoute allowTo={[UserRole.Manager, UserRole.Admin]} />
+          }
+        >
           <Route path="profile" element={<ProfileLayout />}>
             <Route path="users" element={<Users />} />
             <Route path="users/add" element={<CreateUser />} />

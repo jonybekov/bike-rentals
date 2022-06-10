@@ -1,5 +1,7 @@
+import { Center } from "@mantine/core";
 import React from "react";
 import { Navigate, Outlet } from "react-router-dom";
+import ThreeDots from "../../shared/components/three-dots";
 import { UserRole } from "../../shared/types/user";
 import { useAuth } from "../contexts/auth-context";
 
@@ -16,7 +18,11 @@ export const ProtectedRoute = ({
   const { user, loading } = useAuth();
 
   if (loading) {
-    return <div>Loading...</div>;
+    return (
+      <Center style={{ width: "100%" }}>
+        <ThreeDots width={200} />
+      </Center>
+    );
   }
 
   if (user === null && !loading)
@@ -27,9 +33,9 @@ export const ProtectedRoute = ({
       />
     );
 
-  // if (user && !allowTo?.includes(user.role.name)) {
-  //   return <Navigate to={redirectPath} replace />;
-  // }
+  if (user && !allowTo?.includes(user.role.name)) {
+    return <Navigate to={redirectPath} replace />;
+  }
 
   return children ? <div>{children}</div> : <Outlet />;
 };
