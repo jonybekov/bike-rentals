@@ -8,6 +8,7 @@ import {
   Title,
   Switch,
   Center,
+  Tooltip,
 } from "@mantine/core";
 import { ChangeEvent, useCallback, useMemo, useState } from "react";
 import { Checklist, Edit, Trash } from "tabler-icons-react";
@@ -23,7 +24,7 @@ export const Users = () => {
   const modals = useModals();
   const supabase = useClient();
   const { user } = useAuth();
-  const [reservedUserIds, setReservedUserIds] = useState<string[] | null>([]);
+  const [reservedUserIds, setReservedUserIds] = useState<string[] | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
 
   const filter: Filter<any> = useCallback(
@@ -84,17 +85,23 @@ export const Users = () => {
       <td>
         <Group spacing="sm">
           <Link to={`${element.id}/reservations`}>
-            <ActionIcon>
-              <Checklist size={20} />
-            </ActionIcon>
+            <Tooltip label="User reservations">
+              <ActionIcon>
+                <Checklist size={20} />
+              </ActionIcon>
+            </Tooltip>
           </Link>
           <Link to={`${element.id}/edit`}>
-            <ActionIcon>
-              <Edit size={20} />
-            </ActionIcon>
+            <Tooltip label="Edit user">
+              <ActionIcon>
+                <Edit size={20} />
+              </ActionIcon>
+            </Tooltip>
           </Link>
           <ActionIcon onClick={openConfirmModal.bind(null, element)}>
-            <Trash size={20} />
+            <Tooltip label="Delete user">
+              <Trash size={20} />
+            </Tooltip>
           </ActionIcon>
         </Group>
       </td>

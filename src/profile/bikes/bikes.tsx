@@ -17,6 +17,7 @@ import { IBike } from "../../shared/types/bike";
 import { showNotification } from "@mantine/notifications";
 import { useClient, useSelect, useUpdate } from "react-supabase";
 import { Tables } from "../../shared/types/tables";
+import ThreeDots from "../../shared/components/three-dots";
 
 export const Bikes = () => {
   const client = useClient();
@@ -100,28 +101,24 @@ export const Bikes = () => {
           <Button>Add Bike</Button>
         </Link>
       </Box>
-      <Table mt="lg">
-        <thead>
-          <tr>
-            <th>Model name</th>
-            <th>Color</th>
-            <th>Location</th>
-            <th>Avialability</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        {fetching ? (
-          <tbody>
+      {fetching ? (
+        <Center style={{ width: "100%" }}>
+          <ThreeDots width={200} />
+        </Center>
+      ) : (
+        <Table mt="lg">
+          <thead>
             <tr>
-              <Center style={{ width: "100%" }}>
-                <Loader />
-              </Center>
+              <th>Model name</th>
+              <th>Color</th>
+              <th>Location</th>
+              <th>Avialability</th>
+              <th>Actions</th>
             </tr>
-          </tbody>
-        ) : (
+          </thead>
           <tbody>{rows}</tbody>
-        )}
-      </Table>
+        </Table>
+      )}
     </>
   );
 };
