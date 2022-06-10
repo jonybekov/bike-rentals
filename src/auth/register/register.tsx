@@ -7,7 +7,7 @@ import { useClient, useSignUp } from "react-supabase";
 
 export function Register() {
   const navigate = useNavigate();
-  const [{ fetching, user }, signUp] = useSignUp();
+  const [{ fetching, user, error }, signUp] = useSignUp();
   const supabase = useClient();
   const USER_ROLE_ID = 1;
 
@@ -33,11 +33,15 @@ export function Register() {
   useEffect(() => {
     if (fetching) return;
 
+    if (error) {
+      showNotification({ message: error.message, color: "red" });
+    }
+
     if (user) {
       showNotification({ title: "Successfully registered!", message: "" });
       navigate("/");
     }
-  }, [user, user]);
+  }, [user, fetching, error]);
 
   return (
     <AuthForm type="register" loading={fetching} onSubmit={handleRegister} />
